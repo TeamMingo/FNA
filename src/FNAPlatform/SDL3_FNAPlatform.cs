@@ -394,6 +394,15 @@ namespace Microsoft.Xna.Framework
 				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_HIGH_PIXEL_DENSITY;
 			}
 
+			/* SDL3 has to select a compositor-capable native window and alpha
+			 * framebuffer at creation time. Changing NSWindow.opaque after this
+			 * point is too late and leaves alpha-zero OpenGL pixels black.
+			 */
+			if (Environment.GetEnvironmentVariable("FNA_GRAPHICS_ENABLE_TRANSPARENT_WINDOW") == "1")
+			{
+				initFlags |= SDL.SDL_WindowFlags.SDL_WINDOW_TRANSPARENT;
+			}
+
 			string title = MonoGame.Utilities.AssemblyHelper.GetDefaultWindowTitle();
 			IntPtr sdlWindow = SDL.SDL_CreateWindow(
 				title,
