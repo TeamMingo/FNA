@@ -63,6 +63,34 @@ namespace Microsoft.Xna.Framework.Graphics
 			private set;
 		}
 
+		/// <summary>
+		/// Number of backend draw submissions recorded since the most recent
+		/// successful Present call.
+		/// </summary>
+		public long DrawCallsThisFrame
+		{
+			get;
+			private set;
+		}
+
+		/// <summary>
+		/// Number of backend draw submissions in the most recently presented frame.
+		/// </summary>
+		public long DrawCallsLastFrame
+		{
+			get;
+			private set;
+		}
+
+		/// <summary>
+		/// Total backend draw submissions recorded during this device's lifetime.
+		/// </summary>
+		public long DrawCallsTotal
+		{
+			get;
+			private set;
+		}
+
 		#endregion
 
 		#region Public Graphics Display Properties
@@ -628,6 +656,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				IntPtr.Zero,
 				PresentationParameters.parameters.deviceWindowHandle
 			);
+			CompletePresentedFrame();
 		}
 
 		public void Present(
@@ -687,6 +716,7 @@ namespace Microsoft.Xna.Framework.Graphics
 					overrideWindowHandle
 				);
 			}
+			CompletePresentedFrame();
 		}
 
 		#endregion
@@ -1252,6 +1282,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Indices.buffer,
 				Indices.IndexElementSize
 			);
+			RecordDrawCall();
 		}
 
 		public void DrawInstancedPrimitives(
@@ -1285,6 +1316,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				Indices.buffer,
 				Indices.IndexElementSize
 			);
+			RecordDrawCall();
 		}
 
 		#endregion
@@ -1306,6 +1338,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				vertexStart,
 				primitiveCount
 			);
+			RecordDrawCall();
 		}
 
 		#endregion
@@ -1355,6 +1388,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				userIndexBuffer,
 				IndexElementSize.SixteenBits
 			);
+			RecordDrawCall();
 		}
 
 		public void DrawUserIndexedPrimitives<T>(
@@ -1401,6 +1435,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				userIndexBuffer,
 				IndexElementSize.SixteenBits
 			);
+			RecordDrawCall();
 		}
 
 		public void DrawUserIndexedPrimitives<T>(
@@ -1446,6 +1481,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				userIndexBuffer,
 				IndexElementSize.ThirtyTwoBits
 			);
+			RecordDrawCall();
 		}
 
 		public void DrawUserIndexedPrimitives<T>(
@@ -1492,6 +1528,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				userIndexBuffer,
 				IndexElementSize.ThirtyTwoBits
 			);
+			RecordDrawCall();
 		}
 
 		#endregion
@@ -1525,6 +1562,7 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				primitiveCount
 			);
+			RecordDrawCall();
 		}
 
 		public void DrawUserPrimitives<T>(
@@ -1555,11 +1593,30 @@ namespace Microsoft.Xna.Framework.Graphics
 				0,
 				primitiveCount
 			);
+			RecordDrawCall();
 		}
 
 		#endregion
 
 		#region FNA Extensions
+
+		private void RecordDrawCall()
+		{
+			if (DrawCallsThisFrame < long.MaxValue)
+			{
+				DrawCallsThisFrame += 1;
+			}
+			if (DrawCallsTotal < long.MaxValue)
+			{
+				DrawCallsTotal += 1;
+			}
+		}
+
+		private void CompletePresentedFrame()
+		{
+			DrawCallsLastFrame = DrawCallsThisFrame;
+			DrawCallsThisFrame = 0;
+		}
 
 		public void SetStringMarkerEXT(string text)
 		{
